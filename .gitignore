@@ -29,6 +29,9 @@ yarn-error.log*
 # IDE
 .idea/
 
+# Служебный, автогенерируемый файл husky — пересоздаётся командой `npm run prepare`
+.husky/_/
+
 # ОС
 .DS_Store
 

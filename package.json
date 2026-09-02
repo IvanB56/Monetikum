@@ -11,7 +11,12 @@
     "lint:css": "stylelint \"**/*.scss\"",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "eslint --fix",
+    "*.scss": "stylelint --fix"
   },
   "dependencies": {
     "@bem-react/classname": "^1.8.0",
@@ -52,7 +57,9 @@
     "eslint-config-next": "^15.5.23",
     "eslint-plugin-boundaries": "^7.2.0",
     "eslint-plugin-simple-import-sort": "^14.0.0",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
+    "lint-staged": "^17.4.1",
     "stylelint": "^17.14.1",
     "stylelint-config-standard-scss": "^17.0.0",
     "typescript": "^6.0.3",
