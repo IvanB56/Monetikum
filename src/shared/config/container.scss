@@ -1,0 +1,29 @@
+@media (min-width: 36em) {
+  :root {
+    --container-size-responsive: 570px;
+  }
+}
+
+@media (min-width: 48em) {
+  :root {
+    --container-size-responsive: 760px;
+  }
+}
+
+@media (min-width: 62em) {
+  :root {
+    --container-size-responsive: 960px;;
+  }
+}
+
+@media (min-width: 75em) {
+  :root {
+    --container-size-responsive: 1140px;;
+  }
+}
+
+@media (min-width: 88em) {
+  :root {
+    --container-size-responsive: 1400px;;
+  }
+}

@@ -1,0 +1,24 @@
+.header {
+  padding-block: 24px;
+}
+
+// Переключение верстки через CSS, а не JS-хук (useMediaQuery) — исключает
+// расхождение SSR/CSR-рендера и лишний ре-рендер при гидратации.
+// 576px = BREAKPOINTS.xs (src/shared/constants/breakpoints.ts).
+.desktopOnly {
+  display: none;
+}
+
+.mobileOnly {
+  display: block;
+}
+
+@media (min-width: 576px) {
+  .desktopOnly {
+    display: block;
+  }
+
+  .mobileOnly {
+    display: none;
+  }
+}

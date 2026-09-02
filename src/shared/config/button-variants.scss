@@ -1,0 +1,7 @@
+.mantine-Button-root {
+  transition: all 0.3s;
+}
+
+button[data-variant='light']:hover {
+  border-color: var(--button-hover);
+}

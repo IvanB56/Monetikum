@@ -1,0 +1,10 @@
+{
+  "extends": ["stylelint-config-standard-scss"],
+  "ignoreFiles": [".next/**/*", "node_modules/**/*", "public/**/*"],
+  "rules": {
+    "selector-class-pattern": null,
+    "property-no-unknown": [true, { "ignoreProperties": ["composes"] }],
+    "custom-property-pattern": null,
+    "media-feature-range-notation": null
+  }
+}
