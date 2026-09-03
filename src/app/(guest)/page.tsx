@@ -1,9 +1,9 @@
-import {Button, Title} from "@mantine/core";
-import {dehydrate, HydrationBoundary} from "@tanstack/react-query";
+import {Button, Title} from '@mantine/core';
+import {dehydrate, HydrationBoundary} from '@tanstack/react-query';
 
-import {Header} from "@widgets/Header";
-import {prefetchRegions} from "@entities/regions";
-import {getQueryClient} from "@shared/lib/query";
+import {Header} from '@widgets/Header';
+import {prefetchRegions} from '@entities/regions';
+import {getQueryClient} from '@shared/lib/query';
 
 export default async function Page() {
   const queryClient = getQueryClient();

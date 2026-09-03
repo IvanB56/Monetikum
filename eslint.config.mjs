@@ -28,6 +28,7 @@ const eslintConfig = [
             "simple-import-sort": simpleImportSort,
         },
         rules: {
+            quotes: ["error", "single", { avoidEscape: true }],
             "simple-import-sort/imports": ["error", {
                 groups: [
                     // импорты side-effect (например, полифиллы)

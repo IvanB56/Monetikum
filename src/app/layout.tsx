@@ -1,10 +1,10 @@
-import {ReactNode} from "react";
+import {ReactNode} from 'react';
 
-import {ColorSchemeScript, mantineHtmlProps} from "@mantine/core";
+import {ColorSchemeScript, mantineHtmlProps} from '@mantine/core';
 
-import {montserrat} from "@shared/config/fonts";
-import {AppMantineProvider} from "@shared/config/mantine-provider";
-import {QueryProvider} from "@shared/lib/query";
+import {montserrat} from '@shared/config/fonts';
+import {AppMantineProvider} from '@shared/config/mantine-provider';
+import {QueryProvider} from '@shared/lib/query';
 
 import '@mantine/core/styles.css';
 import '@shared/config/typography.scss';

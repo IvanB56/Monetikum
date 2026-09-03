@@ -1,1 +1,1 @@
-export * from "./suspense-fallback";
+export * from './suspense-fallback';
