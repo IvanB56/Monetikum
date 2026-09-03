@@ -44,6 +44,3 @@ yarn-error.log*
 CLAUDE.md
 skills-lock.json
 docs/
-
-# Сквозные (e2e) тесты
-e2e/
