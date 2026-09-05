@@ -1,7 +1,6 @@
-export interface Region {
-  slug: string;
-  name: string;
-}
+import {RegionShape} from '@shared/types/region';
+
+export type Region = RegionShape;
 
 export interface RegionsResponse {
   data: Region[];

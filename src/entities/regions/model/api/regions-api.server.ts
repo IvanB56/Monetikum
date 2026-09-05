@@ -1,6 +1,6 @@
-import {QueryClient} from '@tanstack/react-query';
+import {type QueryClient} from '@tanstack/react-query';
 
-import {serverFetch} from '@shared/api/server-fetch';
+import {serverFetch} from '@shared/api';
 import {unwrapData} from '@shared/lib/helpers';
 
 import {Region, RegionsResponse} from '../types/region';

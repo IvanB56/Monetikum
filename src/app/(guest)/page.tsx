@@ -3,12 +3,13 @@ import {dehydrate, HydrationBoundary} from '@tanstack/react-query';
 
 import {Header} from '@widgets/Header';
 import {prefetchRegions} from '@entities/regions';
+import {prefetchTariffs} from '@entities/tariff';
 import {getQueryClient} from '@shared/lib/query';
 
 export default async function Page() {
   const queryClient = getQueryClient();
 
-  await prefetchRegions(queryClient);
+  await Promise.all([prefetchRegions(queryClient), prefetchTariffs(queryClient)]);
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
