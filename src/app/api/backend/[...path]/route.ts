@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { getBackendApiUrl, resolveSanctumSession } from '@shared/api';
+import { frontendOriginHeaders, getBackendApiUrl, resolveSanctumSession } from '@shared/api';
 
 /**
  * Авторизованный прокси-слой к тестовому инстансу старого backend
@@ -52,6 +52,7 @@ async function proxyToBackend(request: NextRequest, { params }: RouteContext): P
     Accept: 'application/json',
     'X-XSRF-TOKEN': sanctumSession.xsrfToken,
     Cookie: sanctumSession.cookieHeader,
+    ...frontendOriginHeaders(),
   };
   const requestContentType = request.headers.get('content-type');
   if (requestContentType) {

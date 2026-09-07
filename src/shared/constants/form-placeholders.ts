@@ -1,0 +1,1 @@
+export const PHONE_PLACEHOLDER = '+7(999)123-45-67';

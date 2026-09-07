@@ -1,21 +1,19 @@
-import {Button, Title} from '@mantine/core';
-import {dehydrate, HydrationBoundary} from '@tanstack/react-query';
+import { Button, Title } from '@mantine/core';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
-import {Header} from '@widgets/Header';
-import {prefetchRegions} from '@entities/regions';
-import {prefetchTariffs} from '@entities/tariff';
-import {getQueryClient} from '@shared/lib/query';
+import { prefetchRegions } from '@entities/regions';
+import { prefetchTariffs } from '@entities/tariff';
+import { getQueryClient } from '@shared/lib/query';
 
 export default async function Page() {
   const queryClient = getQueryClient();
 
-  await Promise.all([prefetchRegions(queryClient), prefetchTariffs(queryClient)]);
+  await Promise.all([ prefetchRegions(queryClient), prefetchTariffs(queryClient) ]);
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <HydrationBoundary state={ dehydrate(queryClient) }>
       <div>
-        <Header/>
-        <Title order={1}>Hello, Next.js!</Title>
+        <Title order={ 1 }>Hello, Next.js!</Title>
         <Button size="sm">
           Кнопка
         </Button>

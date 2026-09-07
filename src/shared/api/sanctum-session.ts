@@ -64,7 +64,7 @@ export function getBackendApiUrl(): string {
 }
 
 /** `https://test.monetikum.ru/api` → `https://test.monetikum.ru` — `/sanctum/*` живёт вне `/api`. */
-function getBackendOrigin(): string {
+export function getBackendOrigin(): string {
   return getBackendApiUrl().replace(/\/api\/?$/, '');
 }
 
@@ -107,10 +107,27 @@ function toSanctumSession(jar: CookieJar): SanctumSession {
   };
 }
 
+/**
+ * `Origin`/`Referer`, которые в браузере подставляются автоматически, здесь
+ * приходится подделывать вручную: это server-to-server запрос без Origin по
+ * умолчанию, а Laravel Sanctum (`EnsureFrontendRequestsAreStateful::fromFrontend()`)
+ * решает, поднимать ли сессию (`StartSession`) для запроса, именно по этим
+ * заголовкам, сверяя домен с `SANCTUM_STATEFUL_DOMAINS`. Без них backend не
+ * запускает сессию вовсе, и `$request->session()` в `SponsorController::login()`
+ * падает с 500 на самом успешном логине (проверено эмпирически на
+ * test.monetikum.ru) — ошибка выглядит как "неверные данные", хотя причина
+ * совсем другая. Собственный origin backend'а всегда в его stateful-списке
+ * (Sanctum добавляет `Sanctum::currentApplicationUrlWithPort()` по умолчанию).
+ */
+export function frontendOriginHeaders(): Record<string, string> {
+  const origin = getBackendOrigin();
+  return { Origin: origin, Referer: `${origin}/` };
+}
+
 /** `GET /sanctum/csrf-cookie` — обязательный первый шаг перед login/logout. */
 async function requestCsrfCookieJar(): Promise<CookieJar> {
   const response = await fetch(`${getBackendOrigin()}/sanctum/csrf-cookie`, {
-    headers: { Accept: 'application/json' },
+    headers: { Accept: 'application/json', ...frontendOriginHeaders() },
   });
 
   if (!response.ok) {
@@ -139,6 +156,7 @@ async function loginWithCsrf(
       'Content-Type': 'application/json',
       'X-XSRF-TOKEN': xsrfToken,
       Cookie: serializeCookieJar(csrfJar),
+      ...frontendOriginHeaders(),
     },
     body: JSON.stringify(body),
   });
@@ -168,6 +186,7 @@ export async function logoutSanctumSession(session: SanctumSession): Promise<voi
       Accept: 'application/json',
       'X-XSRF-TOKEN': session.xsrfToken,
       Cookie: session.cookieHeader,
+      ...frontendOriginHeaders(),
     },
   });
 

@@ -1,5 +1,7 @@
-import {ReactNode} from 'react';
+import { ReactNode } from 'react';
 
-export default function GuestLayout({children}: { children: ReactNode }) {
-  return <>{children}</>;
+import { Header } from '@widgets/Header';
+
+export default function GuestLayout({ children }: { children: ReactNode }) {
+  return <><Header/>{ children }</>;
 }

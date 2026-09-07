@@ -5,7 +5,9 @@ export type {
   StudentLoginCredentials,
 } from './sanctum-session';
 export {
+  frontendOriginHeaders,
   getBackendApiUrl,
+  getBackendOrigin,
   loginSponsor,
   loginStudent,
   logoutSanctumSession,
