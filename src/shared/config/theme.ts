@@ -1,4 +1,4 @@
-import {createTheme, defaultVariantColorsResolver, type MantineColorsTuple, rem, type VariantColorsResolver} from '@mantine/core';
+import {createTheme, defaultVariantColorsResolver, type MantineColorsTuple, rem, Tabs, type VariantColorsResolver} from '@mantine/core';
 
 const brand: MantineColorsTuple = [
   '#f0f8fa',
@@ -97,4 +97,12 @@ export const theme = createTheme({
     fontFamily
   },
   variantColorResolver,
+  components: {
+    // keepMounted: false заставляет TabsPanel рендерить children напрямую вместо
+    // React Activity — установленный @mantine/core@9.5.2 требует React 19.2 с Activity,
+    // но SSR-рантайм Next.js 15.5.24 использует свою встроенную сборку React без этого
+    // экспорта, из-за чего активная Tabs.Panel падает с "Element type is invalid:
+    // ...got: undefined". Убрать вместе с этим комментарием, когда Next поддержит Activity.
+    Tabs: Tabs.extend({ defaultProps: { keepMounted: false } }),
+  },
 });

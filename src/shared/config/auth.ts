@@ -1,7 +1,7 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 
-import {loginSponsor, loginStudent, SanctumSessionError,} from '@shared/api';
+import { loginSponsor, loginStudent, SanctumSessionError, } from '@shared/api';
 
 export const SPONSOR_ROLE = 'Sponsor';
 export const STUDENT_ROLE = 'Student';
@@ -17,27 +17,27 @@ export type UserRole = typeof SPONSOR_ROLE | typeof STUDENT_ROLE;
  * Регистрация ребёнка/спонсора, прокси авторизованных запросов и роутинг —
  * следующие под-фазы (1.1–1.4), здесь только сам механизм входа.
  */
-export const {handlers, auth, signIn, signOut} = NextAuth({
-  session: {strategy: 'jwt'},
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  session: { strategy: 'jwt' },
   // Next.js-сервер этого приложения не хостится на Vercel — без этого флага
   // next-auth v5 отклоняет запросы с ошибкой UntrustedHost.
   trustHost: true,
   providers: [
     Credentials({
-      id: 'sponsor',
+      id: 'Sponsor',
       name: 'Спонсор',
       credentials: {
-        phone: {label: 'Телефон', type: 'text'},
-        password: {label: 'Пароль', type: 'password'},
+        phone: { label: 'Телефон', type: 'text' },
+        password: { label: 'Пароль', type: 'password' },
       },
       async authorize(credentials) {
-        const {phone, password} = credentials;
+        const { phone, password } = credentials;
         if (typeof phone !== 'string' || typeof password !== 'string') {
           return null;
         }
 
         try {
-          const session = await loginSponsor({phone, password});
+          const session = await loginSponsor({ phone, password });
           return {
             id: phone,
             role: SPONSOR_ROLE,
@@ -51,20 +51,20 @@ export const {handlers, auth, signIn, signOut} = NextAuth({
       },
     }),
     Credentials({
-      id: 'student',
+      id: 'Student',
       name: 'Студент',
       credentials: {
-        login: {label: 'Логин', type: 'text'},
-        password: {label: 'Пароль', type: 'password'},
+        login: { label: 'Логин', type: 'text' },
+        password: { label: 'Пароль', type: 'password' },
       },
       async authorize(credentials) {
-        const {login, password} = credentials;
+        const { login, password } = credentials;
         if (typeof login !== 'string' || typeof password !== 'string') {
           return null;
         }
 
         try {
-          const session = await loginStudent({login, password});
+          const session = await loginStudent({ login, password });
           return {
             id: login,
             role: STUDENT_ROLE,
@@ -79,7 +79,7 @@ export const {handlers, auth, signIn, signOut} = NextAuth({
     }),
   ],
   callbacks: {
-    jwt({token, user}) {
+    jwt({ token, user }) {
       if (user) {
         token.role = user.role;
         token.sanctumCookie = user.sanctumCookie;
@@ -87,7 +87,7 @@ export const {handlers, auth, signIn, signOut} = NextAuth({
       }
       return token;
     },
-    session({session, token}) {
+    session({ session, token }) {
       // Намеренно не копируем token.sanctumCookie/sanctumXsrfToken сюда —
       // это единственное некомпромиссное требование безопасности этой фазы,
       // session() отдаётся клиенту через useSession()/auth(). token.role

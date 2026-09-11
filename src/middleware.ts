@@ -11,7 +11,7 @@ export default auth((request) => {
   const isProtectedPath = PROTECTED_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
   if (!request.auth && isProtectedPath) {
-    return NextResponse.redirect(new URL('/?login=true', request.nextUrl));
+    return NextResponse.redirect(new URL('/authorization', request.nextUrl));
   }
 
   if (role === SPONSOR_ROLE && !pathname.startsWith('/sponsor')) {
