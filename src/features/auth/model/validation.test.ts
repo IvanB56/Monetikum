@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { PASSWORD_REQUIRED_ERROR, PHONE_INCOMPLETE_ERROR } from '@shared/constants';
+import { LOGIN_REQUIRED_ERROR, PASSWORD_REQUIRED_ERROR, PHONE_INCOMPLETE_ERROR } from '@shared/constants';
 
-import { passwordSchema, phoneSchema } from './validation';
+import { loginSchema, passwordSchema, phoneSchema } from './validation';
 
 describe('phoneSchema', () => {
   it('принимает телефон в формате маски', () => {
@@ -11,7 +11,7 @@ describe('phoneSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it.each(['+7(999)123-45-6', '+7999123-45-67', '89991234567', '', '+7(999)123-45-677'])(
+  it.each([ '+7(999)123-45-6', '+7999123-45-67', '89991234567', '', '+7(999)123-45-677' ])(
     'отклоняет незамаскированный/неполный телефон: %s',
     (value) => {
       const result = phoneSchema.safeParse(value);
@@ -37,6 +37,23 @@ describe('passwordSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues[0]?.message).toBe(PASSWORD_REQUIRED_ERROR);
+    }
+  });
+});
+
+describe('loginSchema', () => {
+  it('принимает непустой логин', () => {
+    const result = loginSchema.safeParse('student123');
+
+    expect(result.success).toBe(true);
+  });
+
+  it('отклоняет пустой логин с сообщением об обязательности', () => {
+    const result = loginSchema.safeParse('');
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toBe(LOGIN_REQUIRED_ERROR);
     }
   });
 });

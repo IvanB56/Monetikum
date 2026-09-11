@@ -1,12 +1,24 @@
-import React from 'react';
+import { Container, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 
-import { SponsorLoginForm } from '@features/auth';
+import { SponsorLoginForm, StudentLoginForm } from '@features/auth';
+import { SPONSOR_LOGIN_TAB_LABEL, STUDENT_LOGIN_TAB_LABEL } from '@shared/constants';
 
 const Page = () => {
   return (
-    <div>
-      <SponsorLoginForm/>
-    </div>
+    <Container size="responsive">
+      <Tabs defaultValue="sponsor">
+        <TabsList>
+          <TabsTab value="sponsor">{ SPONSOR_LOGIN_TAB_LABEL }</TabsTab>
+          <TabsTab value="student">{ STUDENT_LOGIN_TAB_LABEL }</TabsTab>
+        </TabsList>
+        <TabsPanel value="sponsor">
+          <SponsorLoginForm/>
+        </TabsPanel>
+        <TabsPanel value="student">
+          <StudentLoginForm/>
+        </TabsPanel>
+      </Tabs>
+    </Container>
   );
 };
 
