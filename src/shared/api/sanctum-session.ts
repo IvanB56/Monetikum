@@ -25,6 +25,13 @@
 import type { GetTokenParams } from 'next-auth/jwt';
 import { getToken } from 'next-auth/jwt';
 
+import {
+  SPONSOR_REGISTER_FAILED_ERROR,
+  SPONSOR_VERIFY_PHONE_FAILED_ERROR,
+} from '@shared/constants';
+
+import { translateBackendErrorText } from './backend-error-translations';
+
 export class SanctumSessionError extends Error {
   constructor(
     message: string,
@@ -32,6 +39,24 @@ export class SanctumSessionError extends Error {
   ) {
     super(message);
     this.name = 'SanctumSessionError';
+  }
+}
+
+/**
+ * Ошибка `POST /user/sponsor/verify-phone`/`POST /user/sponsor/register` —
+ * в отличие от логина, backend на этих эндпоинтах возвращает структурированные
+ * ошибки валидации (`{ message, errors: { field: string[] } }` при 422) или
+ * `{ error }` (например, `CannotSendVerifyCodeException` при недоступности
+ * SMS-провайдера) — вызывающий код мапит `fieldErrors` на конкретные поля формы.
+ */
+export class SanctumRequestError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly fieldErrors?: Record<string, string[]>,
+  ) {
+    super(message);
+    this.name = 'SanctumRequestError';
   }
 }
 
@@ -50,6 +75,20 @@ export interface SponsorLoginCredentials {
 export interface StudentLoginCredentials {
   login: string;
   password: string;
+}
+
+/** Тело `POST /user/sponsor/verify-phone` — предвалидирует всю форму регистрации и отправляет SMS-код. */
+export interface SponsorVerifyPhoneCredentials {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  passwordConfirmation: string;
+}
+
+/** Тело `POST /user/sponsor/register` — те же данные + код, полученный по SMS. */
+export interface SponsorRegisterCredentials extends SponsorVerifyPhoneCredentials {
+  phoneVerifyCode: string;
 }
 
 type CookieJar = Record<string, string>;
@@ -142,10 +181,18 @@ async function requestCsrfCookieJar(): Promise<CookieJar> {
   return jar;
 }
 
-async function loginWithCsrf(
-  path: string,
-  body: SponsorLoginCredentials | StudentLoginCredentials,
-): Promise<SanctumSession> {
+interface CsrfPostResult {
+  response: Response;
+  csrfJar: CookieJar;
+}
+
+/**
+ * Общий CSRF-handshake + `POST` к `test.monetikum.ru`, переиспользуемый и
+ * логином (`loginWithCsrf`), и регистрацией спонсора (`verifySponsorPhone`/
+ * `registerSponsor`) — все три эндпоинта одинаково требуют свежий XSRF-токен
+ * и `Origin`/`Referer` (см. `frontendOriginHeaders()`).
+ */
+async function postWithCsrf(path: string, body: object): Promise<CsrfPostResult> {
   const csrfJar = await requestCsrfCookieJar();
   const xsrfToken = decodeURIComponent(csrfJar['XSRF-TOKEN']);
 
@@ -160,6 +207,35 @@ async function loginWithCsrf(
     },
     body: JSON.stringify(body),
   });
+
+  return { response, csrfJar };
+}
+
+async function parseErrorBody(response: Response): Promise<{ message?: string; errors?: Record<string, string[]> }> {
+  try {
+    const body = (await response.json()) as { message?: string; errors?: Record<string, string[]> };
+
+    return {
+      message: body.message ? translateBackendErrorText(body.message) : body.message,
+      errors: body.errors
+        ? Object.fromEntries(
+          Object.entries(body.errors).map(([field, messages]) => [
+            field,
+            messages.map(translateBackendErrorText),
+          ]),
+        )
+        : body.errors,
+    };
+  } catch {
+    return {};
+  }
+}
+
+async function loginWithCsrf(
+  path: string,
+  body: SponsorLoginCredentials | StudentLoginCredentials,
+): Promise<SanctumSession> {
+  const { response, csrfJar } = await postWithCsrf(path, body);
 
   if (!response.ok) {
     throw new SanctumSessionError('Неверные учётные данные', response.status);
@@ -176,6 +252,49 @@ export function loginSponsor(credentials: SponsorLoginCredentials): Promise<Sanc
 /** Логин студента — `POST /user/student/login`, тело `{ login, password }`. */
 export function loginStudent(credentials: StudentLoginCredentials): Promise<SanctumSession> {
   return loginWithCsrf('/user/student/login', credentials);
+}
+
+/**
+ * Предвалидирует данные регистрации и отправляет SMS-код —
+ * `POST /user/sponsor/verify-phone`. Успех — пустой `204`. Backend требует
+ * `password_confirmation` тем же правилом (`confirmed`), что и `register`.
+ */
+export async function verifySponsorPhone(credentials: SponsorVerifyPhoneCredentials): Promise<void> {
+  const { response } = await postWithCsrf('/user/sponsor/verify-phone', {
+    name: credentials.name,
+    email: credentials.email,
+    phone: credentials.phone,
+    password: credentials.password,
+    password_confirmation: credentials.passwordConfirmation,
+  });
+
+  if (response.status === 204) return;
+
+  const body = await parseErrorBody(response);
+  throw new SanctumRequestError(body.message ?? SPONSOR_VERIFY_PHONE_FAILED_ERROR, response.status, body.errors);
+}
+
+/**
+ * Создаёт аккаунт спонсора — `POST /user/sponsor/register`. Успех — `201`.
+ * Backend логинит спонсора на своей стороне (`Auth::guard('sponsor')->login()`),
+ * но не вызывает `session()->regenerate()`, как это делает `login()` — поэтому
+ * вызывающий код не пытается захватить сессию из этого ответа, а выполняет
+ * обычный `loginSponsor()`/next-auth `signIn()` сразу после успеха.
+ */
+export async function registerSponsor(credentials: SponsorRegisterCredentials): Promise<void> {
+  const { response } = await postWithCsrf('/user/sponsor/register', {
+    name: credentials.name,
+    email: credentials.email,
+    phone: credentials.phone,
+    password: credentials.password,
+    password_confirmation: credentials.passwordConfirmation,
+    phone_verify_code: credentials.phoneVerifyCode,
+  });
+
+  if (response.status === 201) return;
+
+  const body = await parseErrorBody(response);
+  throw new SanctumRequestError(body.message ?? SPONSOR_REGISTER_FAILED_ERROR, response.status, body.errors);
 }
 
 /** Инвалидирует Sanctum session-cookie на backend — `POST /user/logout`. */
