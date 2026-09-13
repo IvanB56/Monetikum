@@ -1,10 +1,8 @@
-import {frontendOriginHeaders, resolveSanctumSession} from './sanctum-session';
+import {frontendOriginHeaders, resolveSanctumSessionFromHeaders} from './sanctum-session';
 import {ApiError, serverFetch} from './server-fetch';
 
 export async function authenticatedServerFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const {headers} = await import('next/headers');
-  const requestHeaders = await headers();
-  const sanctumSession = await resolveSanctumSession({headers: requestHeaders});
+  const sanctumSession = await resolveSanctumSessionFromHeaders();
 
   if (!sanctumSession) {
     throw new ApiError('Пользователь не авторизован', 401);

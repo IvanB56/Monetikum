@@ -15,6 +15,7 @@ export {
   logoutSanctumSession,
   registerSponsor,
   resolveSanctumSession,
+  resolveSanctumSessionFromHeaders,
   SanctumRequestError,
   SanctumSessionError,
   verifySponsorPhone,

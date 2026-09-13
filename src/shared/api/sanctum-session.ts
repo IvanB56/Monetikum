@@ -374,3 +374,17 @@ export async function resolveSanctumSession(
 
   return { cookieHeader: token.sanctumCookie, xsrfToken: token.sanctumXsrfToken };
 }
+
+/**
+ * `resolveSanctumSession()` для вызывающих, которым не нужен собственный доступ
+ * к заголовкам запроса (Server Actions, `authenticatedServerFetch`) — один
+ * choke point для обхода готчи "next/headers vs единый index.ts на слайс"
+ * (см. phase-progress.md): `next/headers` импортируется динамически внутри
+ * тела функции, а не на верхнем уровне модуля, чтобы не попасть в граф
+ * статической достижимости клиентского бандла.
+ */
+export async function resolveSanctumSessionFromHeaders(): Promise<SanctumSession | null> {
+  const { headers } = await import('next/headers');
+  const requestHeaders = await headers();
+  return resolveSanctumSession({ headers: requestHeaders });
+}
