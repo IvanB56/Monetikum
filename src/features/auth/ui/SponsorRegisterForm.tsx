@@ -9,9 +9,13 @@ import { SponsorRegisterDetailsStep } from './SponsorRegisterDetailsStep';
 
 type SponsorRegisterStep = 'details' | 'code';
 
-export const SponsorRegisterForm = () => {
-  const [step, setStep] = useState<SponsorRegisterStep>('details');
-  const [details, setDetails] = useState<SponsorRegisterDetails | null>(null);
+export interface SponsorRegisterFormProps {
+  onSwitchToLogin: () => void;
+}
+
+export const SponsorRegisterForm = ({ onSwitchToLogin }: SponsorRegisterFormProps) => {
+  const [ step, setStep ] = useState<SponsorRegisterStep>('details');
+  const [ details, setDetails ] = useState<SponsorRegisterDetails | null>(null);
 
   if (step === 'code' && details) {
     return <SponsorRegisterCodeStep details={ details } onBack={ () => setStep('details') }/>;
@@ -24,6 +28,7 @@ export const SponsorRegisterForm = () => {
         setDetails(values);
         setStep('code');
       } }
+      onSwitchToLogin={ onSwitchToLogin }
     />
   );
 };

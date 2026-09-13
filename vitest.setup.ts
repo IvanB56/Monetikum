@@ -24,3 +24,13 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
       dispatchEvent: () => false,
     }) as unknown as MediaQueryList;
 }
+
+// jsdom не реализует ResizeObserver — от него зависит FloatingIndicator
+// внутри @mantine/core Tabs (позиционирование индикатора активного таба).
+if (typeof window !== 'undefined' && !window.ResizeObserver) {
+  window.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}

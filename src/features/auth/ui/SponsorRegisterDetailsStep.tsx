@@ -4,7 +4,7 @@ import type { Path } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Alert, Button, PasswordInput, Stack, TextInput } from '@mantine/core';
+import { Alert, Anchor, Button, PasswordInput, Stack, TextInput } from '@mantine/core';
 
 import {
   EMAIL_LABEL,
@@ -12,6 +12,7 @@ import {
   PASSWORD_CONFIRMATION_LABEL,
   PASSWORD_LABEL,
   SPONSOR_REGISTER_CONTINUE_LABEL,
+  SPONSOR_REGISTER_SWITCH_TO_LOGIN_LABEL,
 } from '@shared/constants';
 import { PhoneField } from '@shared/ui/PhoneField';
 
@@ -39,9 +40,14 @@ const EMPTY_DEFAULT_VALUES: SponsorRegisterDetails = {
 export interface SponsorRegisterDetailsStepProps {
   defaultValues?: SponsorRegisterDetails;
   onSuccess: (details: SponsorRegisterDetails) => void;
+  onSwitchToLogin: () => void;
 }
 
-export const SponsorRegisterDetailsStep = ({ defaultValues, onSuccess }: SponsorRegisterDetailsStepProps) => {
+export const SponsorRegisterDetailsStep = ({
+  defaultValues,
+  onSuccess,
+  onSwitchToLogin,
+}: SponsorRegisterDetailsStepProps) => {
   const {
     control,
     register,
@@ -103,6 +109,9 @@ export const SponsorRegisterDetailsStep = ({ defaultValues, onSuccess }: Sponsor
         <Button type="submit" loading={ isSubmitting } disabled={ isSubmitting }>
           { SPONSOR_REGISTER_CONTINUE_LABEL }
         </Button>
+        <Anchor component="button" type="button" onClick={ onSwitchToLogin }>
+          { SPONSOR_REGISTER_SWITCH_TO_LOGIN_LABEL }
+        </Anchor>
       </Stack>
     </form>
   );

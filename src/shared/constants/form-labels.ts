@@ -11,3 +11,4 @@ export const SPONSOR_REGISTER_SUBMIT_LABEL = 'Зарегистрироватьс
 export const RESEND_VERIFICATION_CODE_LABEL = 'Отправить код повторно';
 export const RESEND_VERIFICATION_CODE_SUCCESS_MESSAGE = 'Код отправлен повторно';
 export const BACK_LABEL = 'Назад';
+export const SPONSOR_REGISTER_SWITCH_TO_LOGIN_LABEL = 'Уже есть аккаунт? Войти';
