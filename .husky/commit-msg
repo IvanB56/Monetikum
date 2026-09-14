@@ -1,0 +1,13 @@
+commit_msg_file="$1"
+
+forbidden_pattern='claude|anthropic|generated with|co-authored-by|🤖'
+
+if grep -inE "$forbidden_pattern" "$commit_msg_file" >/dev/null; then
+  echo "❌ Коммит отклонён: сообщение содержит технические упоминания (Claude/Anthropic/атрибуция)."
+  echo ""
+  echo "Найдено:"
+  grep -inE "$forbidden_pattern" "$commit_msg_file" | sed 's/^/  /'
+  echo ""
+  echo "Уберите эти строки из сообщения коммита."
+  exit 1
+fi
