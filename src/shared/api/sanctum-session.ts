@@ -89,6 +89,8 @@ export interface SponsorVerifyPhoneCredentials {
 /** Тело `POST /user/sponsor/register` — те же данные + код, полученный по SMS. */
 export interface SponsorRegisterCredentials extends SponsorVerifyPhoneCredentials {
   phoneVerifyCode: string;
+  /** Идентификатор партнёра из `?r=<token>` (см. `shared/lib/referral-token`) — не участвует в verify-phone. */
+  referralToken?: string;
 }
 
 type CookieJar = Record<string, string>;
@@ -289,6 +291,7 @@ export async function registerSponsor(credentials: SponsorRegisterCredentials): 
     password: credentials.password,
     password_confirmation: credentials.passwordConfirmation,
     phone_verify_code: credentials.phoneVerifyCode,
+    referral_token: credentials.referralToken,
   });
 
   if (response.status === 201) return;

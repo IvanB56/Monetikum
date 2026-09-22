@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { auth, SPONSOR_ROLE, STUDENT_ROLE } from '@shared/config/auth';
+import { withReferralTokenCookie } from '@shared/lib/referral-token';
 
 const PROTECTED_PATH_PREFIXES = [ '/student', '/sponsor', '/settings' ];
 
@@ -10,19 +11,19 @@ export default auth((request) => {
 
   const isProtectedPath = PROTECTED_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
+  let response: NextResponse;
+
   if (!request.auth && isProtectedPath) {
-    return NextResponse.redirect(new URL('/authorization', request.nextUrl));
+    response = NextResponse.redirect(new URL('/authorization', request.nextUrl));
+  } else if (role === SPONSOR_ROLE && !pathname.startsWith('/sponsor')) {
+    response = NextResponse.redirect(new URL('/sponsor/start', request.nextUrl));
+  } else if (role === STUDENT_ROLE && !pathname.startsWith('/student')) {
+    response = NextResponse.redirect(new URL('/student/start', request.nextUrl));
+  } else {
+    response = NextResponse.next();
   }
 
-  if (role === SPONSOR_ROLE && !pathname.startsWith('/sponsor')) {
-    return NextResponse.redirect(new URL('/sponsor/start', request.nextUrl));
-  }
-
-  if (role === STUDENT_ROLE && !pathname.startsWith('/student')) {
-    return NextResponse.redirect(new URL('/student/start', request.nextUrl));
-  }
-
-  return NextResponse.next();
+  return withReferralTokenCookie(request, response);
 });
 
 export const config = {

@@ -14,4 +14,9 @@ export type SponsorRegisterActionResult =
 /** Совпадает по форме с шагом 1 (`sponsorRegisterDetailsSchema`) — единственный источник истины для этих полей. */
 export type SponsorVerifyPhoneActionInput = SponsorRegisterDetails;
 
-export type SponsorRegisterActionInput = SponsorRegisterDetails & SponsorVerifyCodeValues;
+/**
+ * `referralToken` — необязательный, намеренно вне `zodResolver`-валидации формы
+ * (скрытый технический параметр из `?r=<token>`, см. `shared/lib/referral-token`),
+ * поэтому пересечение типов, а не `z.infer` вместе с остальными полями.
+ */
+export type SponsorRegisterActionInput = SponsorRegisterDetails & SponsorVerifyCodeValues & { referralToken?: string };

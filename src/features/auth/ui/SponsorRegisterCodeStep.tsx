@@ -16,6 +16,7 @@ import {
   SPONSOR_REGISTER_SUBMIT_LABEL,
   VERIFICATION_CODE_LABEL,
 } from '@shared/constants';
+import { clearReferralToken, getReferralToken } from '@shared/lib/referral-token';
 
 import { registerSponsorAction, verifySponsorPhoneAction } from '../model/actions/sponsor-register';
 import { applyFieldErrors } from '../model/apply-field-errors';
@@ -65,12 +66,17 @@ export const SponsorRegisterCodeStep = ({ details, onBack }: SponsorRegisterCode
   );
 
   const onSubmit = handleSubmit(async ({ phoneVerifyCode }) => {
-    const result = await registerSponsorAction({ ...details, phoneVerifyCode });
+    const result = await registerSponsorAction({
+      ...details,
+      phoneVerifyCode,
+      referralToken: getReferralToken() ?? undefined,
+    });
     if (!result.ok) {
       applyFieldErrors(setError, result.message, CODE_FIELDS, result.fieldErrors);
       return;
     }
 
+    clearReferralToken();
     await onCredentialsSignIn({ phone: details.phone, password: details.password });
   });
 

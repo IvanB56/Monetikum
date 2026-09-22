@@ -63,7 +63,11 @@ export async function registerSponsorAction(
   }
 
   try {
-    await registerSponsorSanctum({ ...parsedDetails.data, phoneVerifyCode: parsedCode.data.phoneVerifyCode });
+    await registerSponsorSanctum({
+      ...parsedDetails.data,
+      phoneVerifyCode: parsedCode.data.phoneVerifyCode,
+      referralToken: input.referralToken,
+    });
     return { ok: true as const };
   } catch (error) {
     if (error instanceof SanctumRequestError) {
